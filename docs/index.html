@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>A Network-Based Approach to Estimating Political Partisanship</title>
+    <meta charset="utf-8">
+    <link href="index_files/remark-css/robot.css" rel="stylesheet" />
+    <link href="index_files/remark-css/robot-fonts.css" rel="stylesheet" />
+    <link href="index_files/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="mizzou.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# A Network-Based Approach to Estimating Political Partisanship
+### Michael W. Kearney📊<br> School of Journalism<br> Informatics Institute<br> University of Missouri
+### <table style="border-style:none; padding: 0 0 50px 0; background-color:transparent" class="table">
+<tr>
+<th style="padding:0 30px">
+<a href="https://twitter.com/kearneymw"><i class="fa fa-twitter"></i></a>
+</th>
+<th style="padding:0 30px">
+<a href="https://github.com/mkearney"> <i class="fa fa-github"> </i></a>
+</th>
+</tr>
+<tr style="background-color:transparent">
+<th style="padding:0 30px">
+<a href="https://twitter.com/kearneymw"> <span class="citation">@kearneymw</span> </a>
+</th>
+<th style="padding:0 30px">
+<a href="https://github.com/mkearney"> <span class="citation">@mkearney</span> </a>
+</th>
+</tr>
+</table>
+
+---
+
+
+
+
+class: center, middle
+
+Slides available online:
+
+
+[mkearney.github.io/ica18_estimating](https://mkearney.github.io/dsa_execweek_talk/)
+
+
+&amp;nbsp;  
+
+
+Please feel welcome to share on social media:
+
+[\#ica18](https://twitter.com/hashtag/ica18?f=tweets&amp;vertical=default&amp;src=hash) [\#ica_pol](https://twitter.com/hashtag/ica_pol?f=tweets&amp;vertical=default&amp;src=hash)
+
+
+---
+
+background-size: 150px auto
+background-position: 490px 185px, 567px 320px, 644px 185px, 721px 320px, 644px 455px, 567px 50px
+background-image: url(img/chr-logo.png), url(img/hexagon-logo.png), url(img/textfeatures-logo.png), url(img/tfse-logo.png), url(img/botrnot-logo.png), url(img/rtweet-logo.svg)
+
+# About Me
+
+**Background**
+
+- PhD in COMS from Kansas
+- Asst prof at Mizzou
+
+**Research interests**
+
+- Partisan selective exposure
+- Digital and social media
+
+**\#rstats packages**
+
+- Twitter APIs: [**{rtweet}**](https://cran.r-project.org/package=rtweet)
+- Text analysis: [**{textfeatures}**](https://cran.r-project.org/package=textfeatures) [**{chr}**](https://github.com/mkearney/chr/)
+- Data wrangling/viz: [**{hexagon}**](https://github.com/mkearney/hexagon/) [**{tfse}**](https://github.com/mkearney/tfse/)
+- Machine learning: [**{botrnot}**](https://github.com/mkearney/botrnot/)
+
+
+---
+
+# Partisanship
+
+**Partisanship**: *extent to which one affiliates or associates with a political party* &lt;site&gt;(Kenski, 1980)&lt;/site&gt;
+
++ Differs from political ideology because it describes relationship to political **organizations** and not **ideas**
+
++ Partisanship is therefore inherently **network-centric**
+
+**Polarization**: *extent to which competing partisans diverge*
+
++ Mass polarization due to non-partisans, or moderates, are *"tuning out"* of politics by selecting more entertainment media options &lt;site&gt; (Layman &amp; Carsey, 2002; Levendusky, 2013) &lt;/site&gt;
+
+
+&lt;style&gt;
+site {
+  color: #0051BA;
+  opacity: .75;
+  font-size: .9em !important;
+}
+&lt;/style&gt;
+
+
+---
+
+# Twitter
+
+Twitter **conversation networks** of political topics occurred largely within partisan clusters &lt;site&gt; (Himelboim, 2014) &lt;/site&gt; 
+
+**Follow-decisions**, or whether a user decides to follows elites, used to estimate the political ideology of [political] elite and mass public users &lt;site&gt; (Barbera, 2015) &lt;/site&gt;
+
++ Bayesian ideal point estimation
++ Using snapshot of user networks, relatively small pool of elite accounts, and single [political] dimension
+
+**How can we translate this method of estimating partisanship (a) in terms more familiar to communication scholars and (b) across multiple dimensions?**
+
+---
+class: inverse, center, middle
+
+# Method
+
+---
+
+# Population
+
+Followers (`N = 18,312,863`) of twelve well-known **source accounts** &lt;site&gt; (e.g., Arceneaux et al., 2012, 2013; Holbert et al., 2012; Wicks et al., 2014) &lt;/site&gt;
+
+``` r
+## GET data via followers/list API
+rtweet::get_followers(screen_name, n = 5e6)
+```
+
+**Democrat**
+
++ @maddow, @paulkrugman, @Salon, @HuffPostPol
+
+**GOP**
+
++ @seanhannit, @Sarah_Palin_USA, @DRUDGE_REPORT, @foxnewspolitics
+
+**Moderate**
+
++ @SInow, @AMC_TV, @survivorcbs, @AmericanIdol
+
+
+---
+
+# Sampling
+
+&lt;span&gt;1.&lt;/span&gt; Retrieved **users-level data for randomly selected users (N = 60,000)**
+
+``` r
+## GET data via users/lookup API
+rtweet::lookup_users(users)
+```
+
+&lt;span&gt;2.&lt;/span&gt; Applied **filters** informed by first-hand experience and previous research &lt;site&gt; (Barberá, 2015; Haustein et al., 2016; Yardi et al., 2009) &lt;/site&gt;
+
++ `protected      | verified`
++ `friends &lt; 50   | friends &gt; 1500`
++ `followers &lt; 50 | followers &gt; 1500`
++ `statuses &lt; 200 | (statuses / ten_days) &lt; 1.0`
+
+&lt;span&gt;3.&lt;/span&gt; Randomly sampled 1,000 users from each group
+
+---
+
+# Elite accounts
+
+&lt;span&gt;4.&lt;span&gt; Collected friend **networks** of all 3,000 users
+
+``` r
+## GET data via friends/list API
+rtweet::get_friends(user)
+```
+
+&lt;span&gt;5.&lt;/span&gt; Using friend networks, identified **elites** (N = 28,855) if they...
+
++ were followed by users sampled from at least two different source accounts
++ had at least 400 followers
++ maintained unprotected, or public, Twitter accounts
+
+---
+
+# PCA
+
++ Three component solution supported by parallel analysis (and Kaiser criteria) and principal component analysis consistent with theorized model, `χ2(25) = 9,108.82`, `p &lt; .001`, `RMSR = 0.054`
+
+
+&lt;p align="center"&gt;&lt;img width="80%" src="img/spatial.png" /&gt;&lt;/p&gt;
+
+
+---
+
+# Validity check
+
+Compare to PEW estimates
+
+
+&lt;p align="center"&gt;&lt;img width="80%" src="img/pew.png" /&gt;&lt;/p&gt;
+
+
+---
+class: inverse, center, middle
+
+# Results
+
+---
+
+# Republican elites
+
+&lt;p align="center"&gt;&lt;img class="asdf" width="116%" src="img/right.png" /&gt;&lt;/p&gt;
+
+
+---
+
+# Democrat elites
+
+&lt;p align="center"&gt;&lt;img class="asdf" width="116%" src="img/left.png" /&gt;&lt;/p&gt;
+
+
+---
+
+# Least partisan
+
+&lt;p align="center"&gt;&lt;img class="asdf" width="116%" src="img/nonpartisan.png" /&gt;&lt;/p&gt;
+
+
+---
+
+# Most partisan
+
+&lt;p align="center"&gt;&lt;img class="asdf" width="116%" src="img/partisan.png" /&gt;&lt;/p&gt;
+
+
+---
+class: inverse, center, middle
+
+# Takeaway
+
+---
+
+# Proposed workflow 
+
+1. Sample followers from partisan and non-partisan groups
+1. Identify elite accounts from friend networks of sampled users
+1. Estimate partisanship using rotated factor scores from PCA/EFA
+
+
+---
+class: inverse, center, middle
+
+# That's it \o/
+
+
+&lt;style&gt;
+img.asdf {
+  max-width: 116%;
+  margin-left: -8%;
+}
+&lt;/style&gt;
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
